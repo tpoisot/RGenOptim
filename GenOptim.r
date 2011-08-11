@@ -84,8 +84,25 @@ GenOptim = function(data,goal,problem,error,seed,genparms)
 	})
 }
 		   
-out <- GenOptim(x,yn,target,errorfunc,seed,genparms)
+#out <- GenOptim(x,yn,target,errorfunc,seed,genparms)
 
-plot(x,yn,col='grey',pch=19)
-lines(x,y)
-lines(x,target(x,out$set),col='red')
+ng <- rep(round(10^seq(from=1,to=2,length=15),0),3)
+nind <- rep(round(10^seq(from=1.5,to=2.5,length=15),0),3)
+
+res <- NULL
+
+for(nn in ng) for(ni in nind)
+{
+	genparms	<- list(ngen=nn,nind=ni,recomb=TRUE,dorep=20)
+	t <- system.time(out <- GenOptim(x,yn,target,errorfunc,seed,genparms))
+	res <- rbind(res,c(nn,ni,t[3],min(out$fits)))
+}
+
+res <- as.data.frame(res)
+colnames(res) <- c('g','i','t','f')
+
+library(lattice)
+
+l10s = list(log=10)
+
+levelplot(f/t~g*i,res,xlab='Number of generations',ylab='Population size',scales=list(x=l10s,y=l10s))
