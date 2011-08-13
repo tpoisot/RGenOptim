@@ -1,18 +1,3 @@
-x <- seq(from=-20,to=20,by=0.25)
-target = function(x,pars) {
-	with(as.list(pars),{
-		return((sin(a*x+b)-cos(x+d))+c*x)
-	})
-}
-opars <- list(a=0.4,b=-0.65,c=-0.4,d=8)
-y <- target(x,opars)
-yn <- target(x+rnorm(length(x),0,0.5),opars)
-
-errorfunc = function(x,tomatch,basedat) sum(abs(tomatch-target(basedat,x)))/length(tomatch)
-
-genparms	<- list(ngen=150,nind=200,recomb=TRUE,dorep=20)
-seed		<- c(a=0,b=0,c=0,d=0)
-
 mutate = function(lop)
 {
 	for(i in 1:length(lop))
@@ -61,7 +46,7 @@ GenOptim = function(data,goal,problem,error,seed,genparms)
 			# Step 0 : create a new matrix
 			tPopMat <- NULL
 			# Step 1 : get the fitness of each element
-			fit <- apply(PopMat,1,function(x) errorfunc(x,goal,data))
+			fit <- apply(PopMat,1,function(x) errorfunc(x,goal,data,problem))
 			FitHist[gen] <- min(fit)
 			# Step 2 : get the genotypes that reproduce
 			OkGen <- PopMat[(rank(fit,ties='random')<=dorep),]
@@ -78,31 +63,31 @@ GenOptim = function(data,goal,problem,error,seed,genparms)
 			colnames(PopMat) <- names(seed)
 		}
 		# Return the best result
-		fit <- apply(PopMat,1,function(x) errorfunc(x,goal,data))
+		fit <- apply(PopMat,1,function(x) errorfunc(x,goal,data,problem))
 		output = list(set=as.list(PopMat[which.min(fit),]),pop=PopMat,fits=fit,fit.log=FitHist)
 		return(output)
 	})
 }
-		   
-#out <- GenOptim(x,yn,target,errorfunc,seed,genparms)
 
-ng <- rep(round(10^seq(from=1,to=2,length=15),0),3)
-nind <- rep(round(10^seq(from=1.5,to=2.5,length=15),0),3)
-
-res <- NULL
-
-for(nn in ng) for(ni in nind)
-{
-	genparms	<- list(ngen=nn,nind=ni,recomb=TRUE,dorep=20)
-	t <- system.time(out <- GenOptim(x,yn,target,errorfunc,seed,genparms))
-	res <- rbind(res,c(nn,ni,t[3],min(out$fits)))
+y.rnd = function(x,pars) {
+	with(as.list(pars),{
+		return(c*x^(-g))
+	})
 }
 
-res <- as.data.frame(res)
-colnames(res) <- c('g','i','t','f')
+errorfunc = function(x,tomatch,basedat,rfunc) sum(abs(tomatch-rfunc(basedat,x)))/length(tomatch)
+genparms	<- list(ngen=300,nind=100,recomb=TRUE,dorep=30)
 
-library(lattice)
+seed.r		<- c(c=1,g=2.5)
 
-l10s = list(log=10)
 
-levelplot(f/t~g*i,res,xlab='Number of generations',ylab='Population size',scales=list(x=l10s,y=l10s))
+# Uncomment to run
+#GenOptim(x,y,y.rnd,errorfunc,seed.r,genparms)
+
+Rsq = function(x,y,pred)
+{
+	m <- mean(y)
+	SStot <- sum((y-m)^2)
+	SSerr <- sum((y-pred)^2)
+	return(1-(SSerr/SStot))
+}
