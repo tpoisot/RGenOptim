@@ -1,4 +1,21 @@
-mutate = function(lop)
+## DESCRIPTION
+## Genetic optimization method using recombination
+##
+## Timothee Poisot
+## Universite Montpellier 2
+##
+## tpoisot@um2.fr
+##
+
+Rsq = function(x,y,pred) # R squared
+{
+	m <- mean(y)
+	SStot <- sum((y-m)^2)
+	SSerr <- sum((y-pred)^2)
+	return(1-(SSerr/SStot))
+}
+
+mutate = function(lop) # Mutation
 {
 	for(i in 1:length(lop))
 	{
@@ -7,7 +24,7 @@ mutate = function(lop)
 	return(lop)
 }
 
-recombin = function(g1,g2,n)
+recombin = function(g1,g2,n) # Recombination
 {
 	tmat = matrix(0,ncol=length(g1),nrow=n)
 	tmat[1,] <- g1
@@ -83,11 +100,3 @@ seed.r		<- c(c=1,g=2.5)
 
 # Uncomment to run
 #GenOptim(x,y,y.rnd,errorfunc,seed.r,genparms)
-
-Rsq = function(x,y,pred)
-{
-	m <- mean(y)
-	SStot <- sum((y-m)^2)
-	SSerr <- sum((y-pred)^2)
-	return(1-(SSerr/SStot))
-}
