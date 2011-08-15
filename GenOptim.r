@@ -88,15 +88,21 @@ GenOptim = function(data,goal,problem,error,seed,genparms)
 
 y.rnd = function(x,pars) {
 	with(as.list(pars),{
-		return(c*x^(-g))
+		return(0.7-(b/(c*exp(-d*x))))
 	})
 }
 
 errorfunc = function(x,tomatch,basedat,rfunc) sum(abs(tomatch-rfunc(basedat,x)))/length(tomatch)
-genparms	<- list(ngen=300,nind=100,recomb=TRUE,dorep=30)
+genparms	<- list(ngen=200,nind=100,recomb=TRUE,dorep=30)
 
-seed.r		<- c(c=1,g=2.5)
+seed.r		<- c(b=1,c=1,d=1)
 
 
-# Uncomment to run
-#GenOptim(x,y,y.rnd,errorfunc,seed.r,genparms)
+x <- fulldata$spe
+y <- fulldata$nover
+
+out <- GenOptim(x,y,y.rnd,errorfunc,seed.r,genparms)
+
+plot(x,y)
+points(x,y.rnd(x,out$set))
+Rsq(x,y,y.rnd(x,out$set))
