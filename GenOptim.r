@@ -5,7 +5,6 @@
 ## Universite Montpellier 2
 ##
 ## tpoisot@um2.fr
-##
 
 Rsq = function(x,y,pred) # R squared
 {
